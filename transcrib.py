@@ -25,7 +25,7 @@ temp_dir = tempfile.mkdtemp()
 chrome_options.add_argument(f"--user-data-dir={temp_dir}")
 
 # Modern headless mode configuration
-# chrome_options.add_argument("--headless=new")  # New headless mode
+chrome_options.add_argument("--headless=new")  # New headless mode
 chrome_options.add_argument("--disable-gpu")
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
@@ -41,7 +41,7 @@ def get_transcribe(video_id):
     atexit.register(driver.quit)
     
     try:
-        # video_id = 'l9ZO_m7v5j8'
+        #eg. video_id = 'l9ZO_m7v5j8'
         url = f"https://youtube.com/watch?v={video_id}"
         
         

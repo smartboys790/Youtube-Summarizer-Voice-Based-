@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block Head %}
+
+<title>Youtube Summarizer (Voice based model)</title>
+
+{% endblock %}
+
+
+{% block body %}
+
+<div class="background-container"></div>
+<div class="container">
+    <form action=" " method="post">
+        <h2>Enter a Link</h2>
+        <input name="geturl" type="text" id="linkInput" placeholder="Paste your YouTube link here" />
+        <br>
+        <button type='submit' value="Generate" name="button" class="animated-button" id="generateButton">Generate</button>
+    </form>
+</div>
+
+
+{% endblock %}

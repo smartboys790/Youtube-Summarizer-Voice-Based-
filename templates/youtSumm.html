@@ -1,285 +1,677 @@
-{% extends "base.html" %}
 
-{% block Head %} 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Youtube Video Summerizer (Voice based model)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #6a82fb, #fc5c7d);
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            color: #fff;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Video Summarizer | AI-Powered Video Insights</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --gradient-start: #6a82fb;
+        --gradient-end: #fc5c7d;
+        --primary: #4361ee;
+        --secondary: #3f37c9;
+        --accent: #4895ef;
+        --dark: #1a1a2e;
+        --light: #f8f9fa;
+    }
+    
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 500;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-primary:hover {
+        background: var(--secondary);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+    
+    .btn-icon:hover {
+        transform: scale(1.1);
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .input-field {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 12px 16px;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .input-field::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .input-field:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.15);
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.3);
+    }
+    
+    .scrollable-content {
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent) rgba(255, 255, 255, 0.1);
+    }
+    
+    .scrollable-content::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .scrollable-content::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+    
+    .scrollable-content::-webkit-scrollbar-thumb {
+        background-color: var(--accent);
+        border-radius: 10px;
+    }
+    
+    .video-container {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        overflow: hidden;
+        border-radius: 12px;
+        transform: translateZ(0);
+    }
+    
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 12px;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    
+    @keywave wave {
+        0% { transform: rotate(0deg); }
+        25% { transform: rotate(5deg); }
+        75% { transform: rotate(-5deg); }
+        100% { transform: rotate(0deg); }
+    }
+    
+    .animate-fadeIn {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+    
+    .animate-pulse {
+        animation: pulse 2s infinite ease-in-out;
+    }
+    
+    .animate-float {
+        animation: float 4s infinite ease-in-out;
+    }
+    
+    .animate-wave {
+        animation: wave 1.5s infinite ease-in-out;
+    }
+    
+    .animate-bounceIn {
+        animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    
+    .loading-dots:after {
+        content: '.';
+        animation: dots 1.5s steps(5, end) infinite;
+    }
+    
+    @keyframes dots {
+        0%, 20% {
+            color: rgba(255,255,255,0);
+            text-shadow: .25em 0 0 rgba(255,255,255,0), .5em 0 0 rgba(255,255,255,0);
         }
-        
-        .background-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('https://www.example.com/path-to-cool-blur-image.jpg') no-repeat center center fixed;
-            background-size: cover;
-            filter: blur(8px);
-            opacity: 0.3;
-            z-index: -1;
-        }
-        
-        .container {
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            max-width: 1200px;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 60px;
-            /* Adjusted for navbar */
-        }
-        
-        h2 {
-            font-weight: 600;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        
-        input[type="text"] {
-            width: calc(100% - 60px);
-            padding: 15px;
-            font-size: 16px;
-            background-color: #333;
-            border: none;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            color: #fff;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            display: inline-block;
-        }
-        
-        input[type="text"]:focus {
-            outline: none;
-            background-color: #444;
-        }
-        
-        .animated-button {
-            padding: 15px 30px;
-            font-size: 16px;
+        40% {
             color: white;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
+            text-shadow: .25em 0 0 rgba(255,255,255,0), .5em 0 0 rgba(255,255,255,0);
         }
-        
-        .animated-button:active {
-            background-color: #0056b3;
-            transform: scale(1.05);
+        60% {
+            text-shadow: .25em 0 0 white, .5em 0 0 rgba(255,255,255,0);
         }
-        
-        .animated-button.clicked {
-            animation: bounce 0.5s;
+        80%, 100% {
+            text-shadow: .25em 0 0 white, .5em 0 0 white;
         }
-        
-        @keyframes bounce {
-            0%,
-            20%,
-            50%,
-            80%,
-            100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-10px);
-            }
-            60% {
-                transform: translateY(-5px);
-            }
+    }
+    
+    .recording-wave {
+        position: relative;
+    }
+    
+    .recording-wave:after {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        right: -5px;
+        bottom: -5px;
+        border: 2px solid rgba(255, 0, 0, 0.6);
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+    }
+    
+    .typing-indicator {
+        display: flex;
+        padding: 10px;
+    }
+    
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--accent);
+        border-radius: 50%;
+        margin: 0 3px;
+        opacity: 0.4;
+    }
+    
+    .typing-dot:nth-child(1) {
+        animation: typingAnimation 1.2s infinite;
+    }
+    
+    .typing-dot:nth-child(2) {
+        animation: typingAnimation 1.2s infinite 0.2s;
+    }
+    
+    .typing-dot:nth-child(3) {
+        animation: typingAnimation 1.2s infinite 0.4s;
+    }
+    
+    @keyframes typingAnimation {
+        0%, 60%, 100% {
+            transform: translateY(0);
+            opacity: 0.4;
         }
-        
-        #outputBox {
-            color: #fff;
-            font-size: 16px;
-            overflow-y: auto;
-            height: 400px;
-            /* Increased height */
+        30% {
+            transform: translateY(-5px);
+            opacity: 1;
         }
-        
-        iframe {
-            width: 100%;
-            height: 100%;
-            border-radius: 8px;
-        }
-        
-        .box {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .audio-container {
-            margin-top: 20px;
-        }
-        
-        .right-container {
-            display: grid;
-            grid-template-rows: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        
-        .footer {
-            width: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 10px 20px;
-            text-align: center;
-            position: fixed;
-            bottom: 0;
-            z-index: 10;
-        }
-        
-        .record-button {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-        
-        .record-button:active {
-            background-color: #0056b3;
-        }
-        
-        .play-pause-button {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            margin-right: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .play-pause-button:active {
-            background-color: #0056b3;
-        }
-    </style>
-{% endblock %}
-
-
+    }
+</style>
 
 {% block body %}
-    
-    <div class="container">
-        <!-- Left Side -->
-        <div class="box">
-            <h2 class="text-2xl font-bold">Summary</h2>
-            <div id="outputBox">
-            {{ summary }}
+<!-- Animated Background Elements -->
+<div class="fixed inset-0 overflow-hidden z-0">
+    <div class="absolute top-20 left-10 w-40 h-40 bg-pink-400 rounded-full filter blur-3xl opacity-20 animate-float"></div>
+    <div class="absolute bottom-20 right-10 w-60 h-60 bg-blue-400 rounded-full filter blur-3xl opacity-20 animate-float" style="animation-delay: 1s;"></div>
+    <div class="absolute top-1/3 right-1/4 w-32 h-32 bg-purple-400 rounded-full filter blur-3xl opacity-20 animate-float" style="animation-delay: 2s;"></div>
+</div>
+
+<div class="relative z-10 flex-grow">
+    <!-- Header -->
+    <header class="bg-white/10 backdrop-blur-md shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-play-circle text-3xl text-white animate-wave"></i>
+                <h1 class="text-2xl font-bold text-white">Video<span class="text-accent">Sum</span></h1>
             </div>
-            <div class="audio-container mt-4">
-                <h2 class="text-2xl font-bold text-white">Audio</h2>
-                <audio controls autoplay class="w-full mt-2">
-                    <source src="http://localhost:8000/summary.mp3" type="audio/mp3">
-                </audio>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#" class="text-white/80 hover:text-white transition hover:scale-105">Features</a>
+                <a href="#" class="text-white/80 hover:text-white transition hover:scale-105">How It Works</a>
+                <a href="#" class="text-white/80 hover:text-white transition hover:scale-105">Pricing</a>
+                <a href="#" class="text-white/80 hover:text-white transition hover:scale-105">Contact</a>
+            </nav>
+            <button class="md:hidden text-white">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Summary Section -->
+            <div class="card p-6 animate-fadeIn" style="animation-delay: 0.1s;">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-white">Video Summary</h2>
+                    <div class="flex space-x-2">
+                        <button class="btn-icon hover:bg-accent/20 tooltip" onclick="downloadSummary()">
+                            <i class="fas fa-download"></i>
+                            <span class="tooltip-text bg-dark text-white p-2 rounded-md text-sm">Download Summary</span>
+                        </button>
+                        <button class="btn-icon hover:bg-accent/20 tooltip" onclick="shareSummary()">
+                            <i class="fas fa-share-alt"></i>
+                            <span class="tooltip-text bg-dark text-white p-2 rounded-md text-sm">Share Summary</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="outputBox" class="scrollable-content h-96 p-4 bg-white/5 rounded-lg overflow-y-auto">
+                    {% if summary %}
+                        <div class="prose max-w-none text-white/90 animate-fadeIn">
+                            {{ summary | safe }}
+                        </div>
+                    {% else %}
+                        <div class="flex flex-col items-center justify-center h-full text-white/40 animate-pulse">
+                            <i class="fas fa-file-alt text-4xl mb-2"></i>
+                            <p>No summary generated yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-6 animate-fadeIn" style="animation-delay: 0.2s;">
+                    <h3 class="text-lg font-medium mb-3 text-white">Audio Summary</h3>
+                    <div class="flex items-center space-x-4">
+                        <audio controls class="w-full" id="summaryAudio">
+                            <source src="http://localhost:8000/summary.mp3" type="audio/mp3">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <button class="btn-icon bg-accent hover:bg-accent/80" onclick="toggleAudio('summaryAudio', this)">
+                            <i class="fas fa-headphones"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-6">
+                <!-- Video Player Section -->
+                <div class="card p-6 animate-fadeIn" style="animation-delay: 0.3s;">
+                    <h2 class="text-xl font-semibold text-white mb-4">Youtube Video Player</h2>
+                    <div class="video-container">
+                        {% if video_id %}
+                            <iframe id="youtubePlayer" src="https://youtube.com/embed/{{video_id}}" frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen class="animate-bounceIn"></iframe>
+                        {% else %}
+                            <div class="absolute inset-0 bg-white/5 rounded-lg flex items-center justify-center">
+                                <div class="text-center p-6 text-white/40">
+                                    <i class="fas fa-video text-4xl mb-3 animate-pulse"></i>
+                                    <p>Enter a YouTube URL to load the video</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Q&A Section -->
+                <div class="card p-6 animate-fadeIn" style="animation-delay: 0.4s;">
+                    <h2 class="text-xl font-semibold text-white mb-4">Ask Questions About This Video</h2>
+                    
+                    <div id="qaContainer" class="scrollable-content h-48 p-4 bg-white/5 rounded-lg mb-4 overflow-y-auto">
+<!--                             {% if qa_pairs %} -->
+                            <div class="space-y-4">
+<!--                                     {% for question, answer in qa_pairs %} -->
+                                    <div class="animate-fadeIn" style="animation-delay: {{ loop.index * 0.1 }}s">
+                                        <p class="font-medium text-accent">Q: {{ question }}</p>
+                                        <p class="text-white/80 mt-1">A: {{ answer }}</p>
+                                    </div>
+<!--                                     {% endfor %} -->
+                            </div>
+<!--                             {% else %} -->
+                            <div class="flex flex-col items-center justify-center h-full text-white/40">
+                                <i class="fas fa-comments text-4xl mb-2 animate-pulse"></i>
+                                <p>Ask a question to get started</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <input type="text" placeholder="Type your question here..." 
+                               class="input-field flex-grow" id="questionInput">
+                        <div class="flex space-x-2">
+                            <button id="askButton" class="btn-primary flex items-center hover:scale-105 active:scale-95">
+                                <i class="fas fa-paper-plane mr-2"></i> Ask
+                            </button>
+                            <div class="relative">
+                                <button id="recordButton" class="btn-icon hover:bg-red-500/20 tooltip recording-wave">
+                                    <i class="fas fa-microphone"></i>
+                                    <span class="tooltip-text bg-dark text-white p-2 rounded-md text-sm">Voice Input</span>
+                                </button>
+                                <div id="recordingIndicator" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+    </main>
+</div>
 
-        <!-- Right Side -->
-        <div class="right-container">
-            <!-- YouTube Video Section -->
-            <div class="box">
-                <h2 class="text-2xl font-bold">Youtube Video player</h2>
-                <div class="mt-2">
-                    <iframe id="youtubePlayer" src="https://youtube.com/embed/{{video_id}}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-48 rounded"></iframe>
-                </div>
+<!-- Footer -->
+<footer class="bg-white/10 backdrop-blur-md border-t border-white/20 py-6 relative z-10">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center space-x-2 mb-4 md:mb-0">
+                <i class="fas fa-play-circle text-2xl text-accent"></i>
+                <span class="text-lg font-semibold text-white">Video<span class="text-accent">Sum</span></span>
             </div>
-
-            <!-- Q & A Section -->
-            <div class="box">
-                <h2 class="text-2xl font-bold">Q & A</h2>
-                <div class="mt-2 p-2 bg-white rounded shadow-inner h-32 overflow-y-auto text-black">
-                    <!-- Q & A content will be displayed here -->
-                </div>
-                <div class="mt-4 flex items-center">
-                    <button class="play-pause-button" onclick="toggleAudio()">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <input type="text" placeholder="Type your question here..." class="w-full p-2 rounded border border-gray-300 text-black">
-                    <button onclick="SubmitEvent">send</button>>
-                    <button class="record-button" onclick="startRecording()">🎤</button>
-                    <button class="record-button" onclick="stopRecording()">⏹️</button>
-                </div>
-                <audio id="qaAudio" class="hidden">
-                    <source src="http://localhost:8000/qa_output.mp3" type="audio/mp3">
-                </audio>
+            <div class="flex space-x-6 text-sm">
+                <a href="#" class="text-white/80 hover:text-white transition">Privacy Policy</a>
+                <a href="#" class="text-white/80 hover:text-white transition">Terms of Service</a>
+                <a href="#" class="text-white/80 hover:text-white transition">Contact Us</a>
+            </div>
+            <div class="flex space-x-4 mt-4 md:mt-0">
+                <a href="#" class="text-white/80 hover:text-white transition hover:scale-110"><i class="fab fa-twitter text-xl"></i></a>
+                <a href="#" class="text-white/80 hover:text-white transition hover:scale-110"><i class="fab fa-github text-xl"></i></a>
+                <a href="#" class="text-white/80 hover:text-white transition hover:scale-110"><i class="fab fa-linkedin text-xl"></i></a>
             </div>
         </div>
+        <div class="mt-6 text-center text-white/60 text-xs">
+            &copy; 2024 VideoSum. All rights reserved.
+        </div>
     </div>
-    <div class="footer">
-        &copy; 2024 YoutSumm. All rights reserved.
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
-    <script>
-        let mediaRecorder;
-        let audioChunks = [];
-
-        function startRecording() {
-            navigator.mediaDevices.getUserMedia({
-                    audio: true
-                })
-                .then(stream => {
-                    mediaRecorder = new MediaRecorder(stream);
-                    mediaRecorder.start();
-
-                    mediaRecorder.addEventListener("dataavailable", event => {
-                        audioChunks.push(event.data);
-                    });
-
-                    mediaRecorder.addEventListener("stop", () => {
-                        const audioBlob = new Blob(audioChunks);
-                        const audioUrl = URL.createObjectURL(audioBlob);
-                        const audio = new Audio(audioUrl);
-                        audio.play();
-                    });
-                });
-        }
-
-        function stopRecording() {
-            mediaRecorder.stop();
-        }
-
-        function toggleAudio() {
-            const audio = document.getElementById('qaAudio');
-            const playPauseButton = document.querySelector('.play-pause-button i');
-            if (audio.paused) {
-                audio.play();
-                playPauseButton.classList.remove('fa-play');
-                playPauseButton.classList.add('fa-pause');
-            } else {
-                audio.pause();
-                playPauseButton.classList.remove('fa-pause');
-                playPauseButton.classList.add('fa-play');
-            }
-        }
-    </script>
+</footer>
 {% endblock %}
 
+<script>
+    // Initialize elements
+    const recordButton = document.getElementById('recordButton');
+    const recordingIndicator = document.getElementById('recordingIndicator');
+    const questionInput = document.getElementById('questionInput');
+    const askButton = document.getElementById('askButton');
+    const qaContainer = document.getElementById('qaContainer');
+    let mediaRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+    
+    // Add animation to cards on scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-fadeIn');
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.card').forEach(card => {
+        observer.observe(card);
+    });
+    
+    // Audio control function
+    function toggleAudio(audioId, button) {
+        const audio = document.getElementById(audioId);
+        const icon = button.querySelector('i');
+        
+        if (audio.paused) {
+            audio.play();
+            icon.classList.remove('fa-headphones');
+            icon.classList.add('fa-pause');
+        } else {
+            audio.pause();
+            icon.classList.remove('fa-pause');
+            icon.classList.add('fa-headphones');
+        }
+    }
+    
+    // Recording functionality
+    function startRecording() {
+        if (isRecording) return;
+        
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                isRecording = true;
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+                
+                // Visual feedback
+                recordButton.classList.add('bg-red-500/20');
+                recordingIndicator.classList.remove('hidden');
+                questionInput.placeholder = "Listening...";
+                
+                audioChunks = [];
+                mediaRecorder.addEventListener("dataavailable", event => {
+                    audioChunks.push(event.data);
+                });
+
+                mediaRecorder.addEventListener("stop", async () => {
+                    const audioBlob = new Blob(audioChunks);
+                    simulateVoiceToText(audioBlob);
+                });
+            })
+            .catch(err => {
+                console.error("Error accessing microphone:", err);
+                showNotification("Could not access microphone. Please check permissions.", 'error');
+            });
+    }
+
+    function stopRecording() {
+        if (!isRecording) return;
+        
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            isRecording = false;
+            
+            // Stop all tracks
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            
+            // Reset UI
+            recordButton.classList.remove('bg-red-500/20');
+            recordingIndicator.classList.add('hidden');
+        }
+    }
+
+    function simulateVoiceToText(audioBlob) {
+        // Show processing state
+        questionInput.placeholder = "Processing voice...";
+        questionInput.disabled = true;
+        
+        // Create typing indicator
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'typing-indicator';
+        typingIndicator.innerHTML = `
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        `;
+        
+        if (qaContainer.querySelector('.flex.flex-col.items-center')) {
+            qaContainer.innerHTML = '';
+        }
+        qaContainer.prepend(typingIndicator);
+        
+        setTimeout(() => {
+            // Simulated question - in a real app, this would come from your speech-to-text API
+            const sampleQuestions = [
+                "What are the main points of this video?",
+                "Can you summarize the key takeaways?",
+                "Who is the speaker in this video?",
+                "What technologies are mentioned in this video?"
+            ];
+            
+            const randomQuestion = sampleQuestions[Math.floor(Math.random() * sampleQuestions.length)];
+            questionInput.value = randomQuestion;
+            questionInput.placeholder = "Type your question here...";
+            questionInput.disabled = false;
+            
+            // Remove typing indicator
+            qaContainer.removeChild(typingIndicator);
+            
+            // Auto-submit the question
+            askQuestion(randomQuestion);
+        }, 2000);
+    }
+
+    function askQuestion(questionText = null) {
+        const question = questionText || questionInput.value.trim();
+        if (!question) return;
+        
+        // Disable button during processing
+        askButton.disabled = true;
+        askButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing';
+        
+        // Create typing indicator in Q&A container
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'typing-indicator mb-4';
+        typingIndicator.innerHTML = `
+            <p class="font-medium text-accent mb-2">Q: ${question}</p>
+            <div class="flex pl-4">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        `;
+        
+        // If placeholder is showing, replace it
+        if (qaContainer.querySelector('.flex.flex-col.items-center')) {
+            qaContainer.innerHTML = '';
+        }
+        
+        qaContainer.prepend(typingIndicator);
+        qaContainer.scrollTop = 0;
+        
+        // Simulate API call delay
+        setTimeout(() => {
+            // Simulated answer
+            const sampleAnswers = [
+                "{{data}}"
+                
+            ];
+            
+            const randomAnswer = "{{answers}}"
+            
+            // Replace typing indicator with actual answer
+            const qaElement = document.createElement('div');
+            qaElement.className = 'qa-entry animate-fadeIn';
+            qaElement.innerHTML = `
+                <div class="mb-4">
+                    <p class="font-medium text-accent">Q: ${question}</p>
+                    <p class="text-white/80 mt-1">A: ${randomAnswer}</p>
+                </div>
+            `;
+            
+            qaContainer.replaceChild(qaElement, typingIndicator);
+            
+            // Clear input and re-enable button
+            if (!questionText) {
+                questionInput.value = '';
+            }
+            askButton.disabled = false;
+            askButton.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Ask';
+            
+            // Scroll to top of Q&A container
+            qaContainer.scrollTop = 0;
+            
+            // Show notification
+            showNotification('Answer generated successfully!', 'success');
+        }, 2500);
+    }
+    
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed bottom-6 right-6 px-6 py-3 rounded-lg shadow-lg text-white animate-fadeIn ${
+            type === 'error' ? 'bg-red-500' : 
+            type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+        }`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+    
+    function downloadSummary() {
+        showNotification('Downloading summary...', 'info');
+        // In a real app, this would trigger a download
+        setTimeout(() => {
+            showNotification('Summary downloaded!', 'success');
+        }, 1500);
+    }
+    
+    function shareSummary() {
+        if (navigator.share) {
+            navigator.share({
+                title: 'Video Summary',
+                text: 'Check out this video summary I generated!',
+                url: window.location.href
+            }).catch(err => {
+                showNotification('Error sharing: ' + err, 'error');
+            });
+        } else {
+            showNotification('Web Share API not supported', 'error');
+        }
+    }
+
+    // Event listeners
+    recordButton.addEventListener('mousedown', startRecording);
+    recordButton.addEventListener('mouseup', stopRecording);
+    recordButton.addEventListener('mouseleave', stopRecording);
+    
+    // For touch devices
+    recordButton.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        startRecording();
+    });
+    recordButton.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        stopRecording();
+    });
+    
+    askButton.addEventListener('click', () => askQuestion());
+    questionInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') askQuestion();
+    });
+    
+    // Animate elements on load
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            document.querySelectorAll('.animate-on-load').forEach(el => {
+                el.classList.add('animate-fadeIn');
+            });
+        }, 300);
+    });
+</script>

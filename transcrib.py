@@ -12,10 +12,10 @@ import atexit
 
 
 # Verify Brave browser installation
-browser_path = "/bin/brave"  # Standard Linux Brave path
+browser_path = "/bin//brave"  # Standard Linux Brave path
 
 # Ensure ChromeDriver exists and is executable
-webdriver_path = "/home/shubham/Documents/chromedriver-linux64/chromedriver"
+webdriver_path = "//home//shubham//Documents//chromedriver-linux64//chromedriver"
 
 # Configure Chrome options
 chrome_options = webdriver.ChromeOptions()

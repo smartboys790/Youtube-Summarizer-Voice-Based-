@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 # from flask_socketio import SocketIO
 import transcrib 
-from ai import chat1
+from ai import chat1, chat2
 
 
 
@@ -23,7 +23,8 @@ def sum():
             print('<==========Tranc==========>\n\n\n', query)
             summary=chat1(query)
             print('<==========Summary==============>', summary)
-            return render_template('youtSumm.html', video_id=video_id, summary=summary)
+            # answer=chat2(query)
+            return render_template('youtSumm.html', video_id=video_id, summary=summary)#,answers=answer)
         
         else:
             print('Enter Valid url')

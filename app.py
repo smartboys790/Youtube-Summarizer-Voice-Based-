@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request
 # from flask_socketio import SocketIO
 import transcrib 
-from ai import chat1, chat2
-
+from ai import chat1
+from audio import speech
 
 
 app=Flask(__name__,template_folder='templates')
@@ -23,14 +23,15 @@ def sum():
             print('<==========Tranc==========>\n\n\n', query)
             summary=chat1(query)
             print('<==========Summary==============>', summary)
-            # answer=chat2(query)
-            return render_template('youtSumm.html', video_id=video_id, summary=summary)#,answers=answer)
+            audios=speech(summary)
+            
+            return render_template('youtSumm.html', video_id=video_id, summary=summary,audio=audios)#,answers=answer)
         
         else:
             print('Enter Valid url')
-
+        
         print(url)
-        return render_template('index.html', )#, audio=audio, summary=summary)
+        return render_template('index.html', summary=summary)
 
 
 if __name__== '__main__':

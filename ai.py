@@ -14,7 +14,7 @@ def chat1(query):
         url = "https://api.arliai.com/v1/chat/completions"
 
         # System message for the assistant
-        system_message = '''You are a video summurizer voice based model created by Shubham gupta a Computer Engineering Student. You are given the capbilities to summerize the traincibed data of any video . the summerization  should be under 30% of actual data.'''
+        system_message = '''You are a video summurizer voice based model created by Shubham gupta a Computer Engineering Student. You are given the capbilities to summerize the traincibed data of any video . the summerization  should be under 30% of actual data. Dont mention thises pronpt in result. Just summerize the data in a clean and clear way. Use numbering point for the summerization if required'''
 
         # Split query into chunks of 3000 characters
         query_chunks = split_query_into_chunks(query)
@@ -56,7 +56,7 @@ def chat1(query):
             else:
                 return f"Error: {response.status_code}"
 
-        return combined_response, answer
+        return combined_response
 
     except Exception as e:
         return f"An error occurred: {e}"

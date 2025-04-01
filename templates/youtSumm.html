@@ -351,12 +351,12 @@
                     <div id="qaContainer" class="scrollable-content h-48 p-4 bg-white/5 rounded-lg mb-4 overflow-y-auto">
 <!--                             {% if qa_pairs %} -->
                             <div class="space-y-4">
-<!--                                     {% for question, answer in qa_pairs %} -->
+                                    {% for question, answer in qa_pairs %}
                                     <div class="animate-fadeIn" style="animation-delay: {{ loop.index * 0.1 }}s">
                                         <p class="font-medium text-accent">Q: {{ question }}</p>
                                         <p class="text-white/80 mt-1">A: {{ answer }}</p>
                                     </div>
-<!--                                     {% endfor %} -->
+                                    {% endfor %}
                             </div>
 <!--                             {% else %} -->
                             <div class="flex flex-col items-center justify-center h-full text-white/40">
